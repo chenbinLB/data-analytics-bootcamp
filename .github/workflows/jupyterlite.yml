@@ -5,14 +5,18 @@ on:
     branches: [main]
     paths:
       - 'module_*/**'
-      - 'jupyterlite/**'
       - '.github/workflows/jupyterlite.yml'
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
+
+# 避免并发部署
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -27,12 +31,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-
       - name: Install JupyterLite
         run: |
           python -m pip install --upgrade pip
@@ -42,7 +40,6 @@ jobs:
         env:
           PYTHONIOENCODING: utf-8
         run: |
-          # 把所有 notebook 复制到 jupyterlite/content
           mkdir -p jupyterlite/content
           cp -r module_00_prep/*.ipynb jupyterlite/content/
           cp -r module_01_sql/*.ipynb jupyterlite/content/
@@ -50,8 +47,7 @@ jobs:
           cp -r module_03_stats/*.ipynb jupyterlite/content/
           cp -r module_04_projects/*.ipynb jupyterlite/content/
 
-          # 生成 JupyterLite 配置
-          cat > jupyterlite_config.json <<'EOF'
+          cat > jupyterlite/jupyter_lite_config.json <<'EOF'
           {
             "jupyterLiteConfig": {
               "enableMemoryStorage": true
@@ -64,27 +60,32 @@ jobs:
           }
           EOF
 
-          # 构建
           cd jupyterlite
           jupyter lite build --output-dir dist --apps lab
           cd ..
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: jupyterlite/dist
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./jupyterlite/dist
+          publish_branch: gh-pages
+          user_name: github-actions[bot]
+          user_email: github-actions[bot]@users.noreply.github.com
+          commit_message: "deploy: JupyterLite build ${{ github.run_id }}"
 
-  deploy:
+  enable-pages:
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Enable GitHub Pages
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/pages \
+            -f source[branch]=gh-pages \
+            -f source[path]=/ \
+            -f build_type=workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
