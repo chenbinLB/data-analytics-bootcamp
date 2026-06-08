@@ -2,8 +2,8 @@
 # 安装: pip install -r requirements.txt
 
 # ===== 基础 =====
-pandas>=2.0.0
-numpy>=1.24.0
+pandas>=2.2.0,<3.0.0     # 锁 2.x:避免 pandas 3.0 破坏性升级
+numpy>=1.24.0,<3.0.0
 pyarrow>=12.0.0          # pandas 读 parquet 用
 
 # ===== 可视化(W2) =====
