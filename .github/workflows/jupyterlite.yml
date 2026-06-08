@@ -39,6 +39,8 @@ jobs:
           pip install "jupyterlite==0.4.0" "jupyterlite-pyodide-kernel==0.4.0"
 
       - name: Build JupyterLite site
+        env:
+          PYTHONIOENCODING: utf-8
         run: |
           # 把所有 notebook 复制到 jupyterlite/content
           mkdir -p jupyterlite/content
@@ -48,16 +50,11 @@ jobs:
           cp -r module_03_stats/*.ipynb jupyterlite/content/
           cp -r module_04_projects/*.ipynb jupyterlite/content/
 
-          # 数据文件(可选,小数据可加;26MB 太大,先不放,用户在 notebook 里跑 setup)
-          # mkdir -p jupyterlite/content/data
-          # cp data/ecommerce.db jupyterlite/content/data/
-
           # 生成 JupyterLite 配置
           cat > jupyterlite_config.json <<'EOF'
           {
             "jupyterLiteConfig": {
-              "enableMemoryStorage": true,
-              "federated_extensions": []
+              "enableMemoryStorage": true
             },
             "litePluginSettings": {
               "@jupyterlite/pyodide-kernel-extension:kernel": {

@@ -23,6 +23,16 @@ setup_data.py — 造一份贴近大厂业务场景的模拟数据集
 
 import sqlite3
 import random
+import sys
+import os
+
+# 修复 Windows 默认 cp1252 编码,让中文 print 不报错(GitHub Actions 必备)
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+except (AttributeError, OSError):
+    pass
+os.environ.setdefault('PYTHONIOENCODING', 'utf-8')
 from datetime import datetime, timedelta
 from pathlib import Path
 
