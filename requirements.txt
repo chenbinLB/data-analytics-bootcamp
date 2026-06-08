@@ -1,0 +1,28 @@
+# Python 数据分析 4 周突击 - 依赖清单
+# 安装: pip install -r requirements.txt
+
+# ===== 基础 =====
+pandas>=2.0.0
+numpy>=1.24.0
+pyarrow>=12.0.0          # pandas 读 parquet 用
+
+# ===== 可视化(W2) =====
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.15.0
+
+# ===== 统计分析(W3) =====
+scipy>=1.10.0
+statsmodels>=0.14.0
+
+# ===== 高性能工具(W4) =====
+duckdb>=0.9.0
+polars>=0.20.0
+
+# ===== Jupyter(PyCharm 可选,VSCode/JupyterLab 需要) =====
+jupyter>=1.0.0
+ipykernel>=6.25.0
+nbformat>=5.9.0
+
+# ===== AI 工具(W4) =====
+# openai>=1.0.0            # LLM 辅助分析(可选,需要 API key)

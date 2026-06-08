@@ -1,0 +1,64 @@
+name: Verify Notebooks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # 每周一早上跑一次
+    - cron: '0 0 * * 1'
+
+jobs:
+  verify:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate data (if missing)
+        run: |
+          if (-not (Test-Path "data\ecommerce.db")) {
+            python module_01_sql\setup_data.py
+          }
+        shell: pwsh
+
+      - name: Run notebook verification
+        env:
+          MPLBACKEND: Agg
+        run: |
+          $failed = $false
+          Get-ChildItem -Path module_* -Filter *.ipynb -Recurse | ForEach-Object {
+            $nb = $_.FullName
+            Write-Host "==> Validating: $nb"
+            $output = python verify.py $nb 2>&1
+            Write-Host $output
+            if ($output -match "FAIL|TIMEOUT") {
+              $failed = $true
+            }
+          }
+          if ($failed) {
+            Write-Error "Some notebooks failed verification"
+            exit 1
+          }
+          Write-Host "✅ All notebooks passed"
+        shell: pwsh
