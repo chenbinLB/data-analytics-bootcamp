@@ -2,6 +2,15 @@
 import json, os, subprocess
 from pathlib import Path
 import sys
+import io
+
+# 修复 Windows 默认 cp1252 编码,让中文 print 不报错(GitHub Actions 必备)
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+except (AttributeError, OSError):
+    pass
+os.environ.setdefault('PYTHONIOENCODING', 'utf-8')
 
 NB_PATH = sys.argv[1] if len(sys.argv) > 1 else None
 if NB_PATH is None:
