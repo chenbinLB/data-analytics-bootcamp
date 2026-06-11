@@ -35,34 +35,34 @@ jobs:
           PYTHONIOENCODING: utf-8
         run: |
           python -m pip install --upgrade pip
-          pip install "jupyterlite==0.4.0" "jupyterlite-pyodide-kernel==0.4.0"
+          # 0.1.x 系列是老 API,简单可靠
+          # content/ 目录直接放 notebook 就行
+          pip install "jupyterlite==0.1.0" "jupyterlite-pyodide-kernel==0.1.0"
 
       - name: Build JupyterLite site
         env:
           PYTHONIOENCODING: utf-8
         run: |
-          # 方法 1:用 --contents 参数(0.4.0 支持)
-          # 文档:jupyter lite build --help
-          # 实际:0.4.x 没有 --contents,只有 --extra-ignore-contents
+          # 老 API:把所有 notebook 复制到 ./content 目录(JupyterLite 0.1.x 默认找这里)
+          mkdir -p content
+          cp -r module_00_prep/*.ipynb content/
+          cp -r module_01_sql/*.ipynb content/
+          cp -r module_02_python/*.ipynb content/
+          cp -r module_03_stats/*.ipynb content/
+          cp -r module_04_projects/*.ipynb content/
 
-          # 方法 2:把 notebook 复制到 'content' 目录(JupyterLite 默认)
-          # 实际:JupyterLite 0.4.x 不再用 'content',改用 federated_extensions + 'files'
+          echo "===== content 目录 ====="
+          ls -la content/ | head -20
+          echo ""
+          echo "===== 总文件数 ====="
+          find content/ -name "*.ipynb" | wc -l
 
-          # 方法 3:用 jupyter lite addcontents(官方推荐)
-          # 先建空 site
+          # 构建
           jupyter lite build --output-dir dist --apps lab
-
-          # 把 notebook 加到 dist 里
-          jupyter lite addcontents dist \
-            module_00_prep/*.ipynb \
-            module_01_sql/*.ipynb \
-            module_02_python/*.ipynb \
-            module_03_stats/*.ipynb \
-            module_04_projects/*.ipynb
 
           echo ""
           echo "===== dist/tree 目录 ====="
-          ls -la dist/tree/ 2>&1 | head -20
+          ls -la dist/tree/ 2>&1 | head -30
           echo ""
           echo "===== dist 总大小 ====="
           du -sh dist/
