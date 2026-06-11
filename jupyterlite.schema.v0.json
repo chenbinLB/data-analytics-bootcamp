@@ -86,6 +86,12 @@
           "default": "./extensions",
           "$ref": "#/definitions/non-trailing-slash-uri"
         },
+        "fullMathjaxUrl": {
+          "type": "string",
+          "description": "path to MathJax2 assets",
+          "default": "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js",
+          "format": "uri"
+        },
         "fullWebRtcSignalingUrls": {
           "type": "array",
           "items": {
@@ -99,6 +105,11 @@
             "wss://y-webrtc-signaling-us.herokuapp.com"
           ],
           "minItems": 1
+        },
+        "mathjaxConfig": {
+          "type": "string",
+          "default": "TeX-AMS_CHTML-full,Safe",
+          "description": "a valid MathJax configuration blob, a comma-delimited list of MathJax profiles"
         },
         "fullStaticUrl": {
           "description": "relative path to built static assets",
@@ -164,17 +175,17 @@
             "type": "object"
           }
         },
-        "notebookPage": {
+        "retroPage": {
           "description": "The page corresponding the named Notebook Classic UI section",
           "anyOf": [
             {
               "type": "string",
-              "description": "an unknown notebook page"
+              "description": "an unknown retro page"
             },
             {
               "type": "string",
               "enum": ["consoles", "notebooks", "edit", "tree"],
-              "description": "a well-known notebook page"
+              "description": "a well-known retro page"
             }
           ]
         },
@@ -185,11 +196,6 @@
         },
         "collaborative": {
           "description": "Whether to enable collaborative editing over WebRTC. Should be paired with the ``?room=<room name>`` URL parameter",
-          "type": "boolean",
-          "default": false
-        },
-        "enableServiceWorkerCache": {
-          "description": "Whether to enable the service worker cache",
           "type": "boolean",
           "default": false
         }
