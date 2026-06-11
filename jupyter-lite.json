@@ -1,11 +1,4 @@
 {
-  "contents": [
-    "module_00_prep/*.ipynb",
-    "module_01_sql/*.ipynb",
-    "module_02_python/*.ipynb",
-    "module_03_stats/*.ipynb",
-    "module_04_projects/*.ipynb"
-  ],
   "jupyter-config-data": {
     "appName": "JupyterLite",
     "appUrl": "./lab",
@@ -305,10 +298,5 @@
       }
     }
   },
-  "jupyter-lite-schema-version": 0,
-  "jupyter_config_data": {
-    "contentsManagerOptions": {
-      "manager": "notebook"
-    }
-  }
+  "jupyter-lite-schema-version": 0
 }
