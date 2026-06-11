@@ -41,35 +41,31 @@ jobs:
         env:
           PYTHONIOENCODING: utf-8
         run: |
-          # 在 jupyter-lite.json 里配置 contents 目录
-          # 这是 JupyterLite 官方推荐的方式
-          cat > jupyter-lite.json <<'EOF'
-          {
-            "jupyter-lite-schema-version": 0,
-            "jupyter_config_data": {
-              "contentsManagerOptions": {
-                "manager": "notebook"
-              }
-            },
-            "contents": [
-              "module_00_prep/*.ipynb",
-              "module_01_sql/*.ipynb",
-              "module_02_python/*.ipynb",
-              "module_03_stats/*.ipynb",
-              "module_04_projects/*.ipynb"
-            ]
-          }
-          EOF
+          # 方法 1:用 --contents 参数(0.4.0 支持)
+          # 文档:jupyter lite build --help
+          # 实际:0.4.x 没有 --contents,只有 --extra-ignore-contents
 
-          echo "===== jupyter-lite.json ====="
-          cat jupyter-lite.json
-          echo ""
-          echo "===== 验证 notebook 文件存在 ====="
-          ls -la module_00_prep/*.ipynb module_01_sql/*.ipynb 2>&1 | head -10
-          echo ""
+          # 方法 2:把 notebook 复制到 'content' 目录(JupyterLite 默认)
+          # 实际:JupyterLite 0.4.x 不再用 'content',改用 federated_extensions + 'files'
 
-          # 直接在仓库根目录 build,contents 路径相对于 cwd
+          # 方法 3:用 jupyter lite addcontents(官方推荐)
+          # 先建空 site
           jupyter lite build --output-dir dist --apps lab
+
+          # 把 notebook 加到 dist 里
+          jupyter lite addcontents dist \
+            module_00_prep/*.ipynb \
+            module_01_sql/*.ipynb \
+            module_02_python/*.ipynb \
+            module_03_stats/*.ipynb \
+            module_04_projects/*.ipynb
+
+          echo ""
+          echo "===== dist/tree 目录 ====="
+          ls -la dist/tree/ 2>&1 | head -20
+          echo ""
+          echo "===== dist 总大小 ====="
+          du -sh dist/
 
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
